@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Order - Beadsyde</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <style>
+        .order-page {
+            background: var(--neutral-beige);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .order-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .order-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .order-title {
+            font-size: 2em;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+        }
+        .step.active {
+            background: var(--primary-blue);
+        }
+        .step.completed {
+            background: var(--success-green);
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+        .required {
+            color: var(--error-red);
+        }
+        .order-summary {
+            background: var(--neutral-beige);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .summary-total {
+            font-weight: 700;
+            font-size: 1.2em;
+            color: var(--primary-blue);
+            border-top: 1px solid var(--border-light);
+            padding-top: 10px;
+        }
+        .order-button {
+            width: 100%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .order-button:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+        }
+        .back-button {
+            background: none;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .payment-info {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-blue);
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .order-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="order-page">
+        <div class="order-container">
+            <div class="order-header">
+                <h1 class="order-title">Complete Your Order</h1>
+                <div class="step-indicator">
+                    <div class="step completed">1</div>
+                    <div class="step active">2</div>
+                    <div class="step">3</div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="form-section">
+                <h3 class="section-title">Your Order</h3>
+                <div class="order-summary" id="orderSummary">
+                    <!-- Order items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="form-section">
+                <h3 class="section-title">Your Details</h3>
+                <form id="orderForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="customerPhone" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Address <span class="required">*</span></label>
+                            <input type="text" id="customerAddress" required placeholder="House no., street, area">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" id="customerCity" required>
+                        </div>
+                        <div class="form-group">
+                            <label>PIN Code <span class="required">*</span></label>
+                            <input type="text" id="customerPincode" required maxlength="6">
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Special Message (Optional)</label>
+                            <textarea id="specialMessage" rows="3" maxlength="100" placeholder="Any special instructions or gift message..."></textarea>
+                            <small>0/100 characters</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="payment-info">
+                <strong>📱 How Payment Works:</strong><br>
+                Click "Place Order" → WhatsApp opens → Pay via UPI → Share screenshot → Order confirmed!
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; align-items: center;">
+                <button class="back-button" onclick="goBack()">← Back to Shop</button>
+                <button class="order-button" onclick="placeOrder()">
+                    <i class="fab fa-whatsapp"></i>
+                    Place Order via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirect to new checkout flow
+        window.location.href = 'checkout.html';
+
+        // Load order from localStorage or URL params (legacy)
+        function loadOrder() {
+            const cart = JSON.parse(localStorage.getItem('beadsyde_cart') || '[]');
+            const orderSummary = document.getElementById('orderSummary');
+
+            if (cart.length === 0) {
+                orderSummary.innerHTML = '<p>No items in cart. <a href="index.html">Continue shopping</a></p>';
+                return;
+            }
+
+            let total = 0;
+            let html = '';
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="summary-item">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>₹${itemTotal}</span>
+                    </div>
+                `;
+            });
+
+            const shipping = total >= 999 ? 0 : 100;
+            const finalTotal = total + shipping;
+
+            html += `
+                <div class="summary-item">
+                    <span>Shipping</span>
+                    <span>${shipping === 0 ? 'FREE' : '₹' + shipping}</span>
+                </div>
+                <div class="summary-item summary-total">
+                    <span>Total</span>
+                    <span>₹${finalTotal}</span>
+                </div>
+            `;
+
+            orderSummary.innerHTML = html;
+        }
+
+        function placeOrder() {
+            const form = document.getElementById('orderForm');
+            const formData = new FormData(form);
+
+            // Basic validation
+            const required = ['customerName', 'customerPhone', 'customerAddress', 'customerCity', 'customerPincode'];
+            for (let field of required) {
+                if (!document.getElementById(field).value.trim()) {
+                    alert('Please fill in all required fields');
+                    document.getElementById(field).focus();
+                    return;
+                }
+            }
+
+            // Generate WhatsApp message
+            const cart = JSON.parse(localStorage.getItem('beadsyde_cart') || '[]');
+            const customer = {
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                address: document.getElementById('customerAddress').value,
+                city: document.getElementById('customerCity').value,
+                pincode: document.getElementById('customerPincode').value,
+                message: document.getElementById('specialMessage').value
+            };
+
+            let message = `🛍️ NEW ORDER - BEADSYDE\n\n`;
+            message += `Name: ${customer.name}\n`;
+            message += `Phone: ${customer.phone}\n`;
+            message += `Address: ${customer.address}, ${customer.city} - ${customer.pincode}\n\n`;
+            message += `ITEMS:\n`;
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                message += `${index + 1}. ${item.name} x${item.quantity} = ₹${itemTotal}\n`;
+            });
+
+            const shipping = total >= 999 ? 0 : 100;
+            const finalTotal = total + shipping;
+
+            message += `\nShipping: ₹${shipping}\n`;
+            message += `TOTAL: ₹${finalTotal}\n\n`;
+
+            if (customer.message) {
+                message += `Special Message: ${customer.message}\n\n`;
+            }
+
+            message += `💳 UPI ID: khemkakshama64-1@oksbi\nAmount: ₹${finalTotal}\n\nPlease share payment screenshot to confirm!`;
+
+            // Open WhatsApp
+            const whatsappUrl = `https://wa.me/918104563011?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Clear cart and redirect
+            localStorage.removeItem('beadsyde_cart');
+            setTimeout(() => {
+                alert('Order sent! Please complete payment via WhatsApp.');
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Character counter for special message
+        document.getElementById('specialMessage').addEventListener('input', function() {
+            const count = this.value.length;
+            const counter = this.parentNode.querySelector('small');
+            counter.textContent = `${count}/100 characters`;
+
+            if (count >= 90) counter.style.color = '#f59e0b';
+            if (count >= 100) counter.style.color = '#EF4444';
+            if (count < 90) counter.style.color = '#888';
+        });
+
+        // Load order on page load
+        document.addEventListener('DOMContentLoaded', loadOrder);
+    </script>
+</body>
+</html>

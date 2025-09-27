@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Beadsyde</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <style>
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            min-height: 80vh;
+        }
+
+        .checkout-steps {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .order-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            height: 2px;
+            background: #e1e1e1;
+            z-index: 0;
+        }
+
+        .step-progress {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            height: 2px;
+            background: var(--primary-blue);
+            transition: width 0.3s ease;
+            z-index: 1;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e1e1e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #888;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .step.completed {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .step-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .payment-method {
+            border: 2px solid var(--border-light);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary-blue);
+            background: #f0f4ff;
+        }
+
+        .payment-icon {
+            font-size: 2em;
+        }
+
+        .payment-details h4 {
+            margin: 0 0 5px 0;
+            color: var(--text-dark);
+        }
+
+        .payment-details p {
+            margin: 0;
+            color: var(--text-medium);
+            font-size: 0.9em;
+        }
+
+        .upi-section {
+            display: none;
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .upi-section.active {
+            display: block;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .upi-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .upi-button {
+            flex: 1;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .upi-button:hover {
+            background: #1e4a9f;
+        }
+
+        .step-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1em;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e4a9f;
+            transform: translateY(-1px);
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .item-quantity {
+            color: var(--text-medium);
+            font-size: 0.9em;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .summary-total {
+            font-weight: 700;
+            font-size: 1.2em;
+            color: var(--primary-blue);
+            border-top: 1px solid var(--border-light);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .upload-section {
+            background: #f0f8ff;
+            border: 2px dashed var(--primary-blue);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .step-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="../assets/images/beadsyde logo.jpg" alt="Beadsyde Logo">
+                </div>
+                <div class="brand-info">
+                    <h1 class="brand-name">Beadsyde</h1>
+                    <p class="tagline">Secure Checkout</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">← Back to Shop</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="checkout-container">
+        <!-- Left Side - Checkout Steps -->
+        <div class="checkout-steps">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step-progress" id="stepProgress"></div>
+                <div class="step active" data-step="1">1</div>
+                <div class="step" data-step="2">2</div>
+                <div class="step" data-step="3">3</div>
+            </div>
+
+            <!-- Step 1: Contact Details -->
+            <div class="step-content active" id="step1">
+                <h2 class="step-title">Contact Details</h2>
+                <p style="color: var(--text-medium); margin-bottom: 25px;">We need this to deliver your infinity at your doorstep!</p>
+                <form id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name <span style="color: var(--error-red);">*</span></label>
+                            <input type="text" id="customerName" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number <span style="color: var(--error-red);">*</span></label>
+                            <input type="tel" id="customerPhone" required placeholder="+91 9876543210">
+                        </div>
+                    </div>
+
+                    <!-- Address and Landmark Row -->
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Address <span style="color: var(--error-red);">*</span></label>
+                            <input type="text" id="customerAddress" required placeholder="House no., building, street, area">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Landmark (Optional)</label>
+                            <input type="text" id="customerLandmark" placeholder="Near hospital, mall, etc.">
+                        </div>
+                    </div>
+
+                    <!-- City, State, PIN Row -->
+                    <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="form-group">
+                            <label>City <span style="color: var(--error-red);">*</span></label>
+                            <input type="text" id="customerCity" required placeholder="Your city">
+                        </div>
+                        <div class="form-group">
+                            <label>State <span style="color: var(--error-red);">*</span></label>
+                            <input type="text" id="customerState" required placeholder="Your state">
+                        </div>
+                        <div class="form-group">
+                            <label>PIN Code <span style="color: var(--error-red);">*</span></label>
+                            <input type="text" id="customerPincode" required placeholder="123456" maxlength="6">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💕 A Love Note From Your Heart <span style="font-size: 0.85em; color: var(--text-light); font-style: italic;">(Handwritten by Beadsyde with your order)</span></label>
+                        <textarea id="specialMessage" rows="3" maxlength="100" placeholder="Write your heartfelt message... we'll handprint it beautifully for your beloved ✨"></textarea>
+                        <div style="text-align: right; margin-top: 8px; font-size: 0.85em; color: var(--text-light); font-weight: 500;">
+                            <span id="charCount">0</span>/100 characters
+                        </div>
+                    </div>
+                </form>
+                <div class="step-buttons">
+                    <button class="btn btn-secondary" onclick="goBack()">← Back to Shop</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Continue to Payment →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Payment -->
+            <div class="step-content" id="step2">
+                <h2 class="step-title">💳 Payment Method</h2>
+                <div class="payment-methods">
+                    <div class="payment-method selected" data-method="upi">
+                        <div class="payment-icon">📱</div>
+                        <div class="payment-details">
+                            <h4>UPI Payment</h4>
+                            <p>Pay using any UPI app - PhonePe, Google Pay, Paytm, etc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upi-section active">
+                    <h4>💰 Pay ₹<span id="paymentAmount">0</span></h4>
+                    <div class="qr-container">
+                        <div class="qr-code">
+                            <div id="qrcode"></div>
+                        </div>
+                        <p>Scan QR code with your UPI app</p>
+                    </div>
+
+                    <div class="upi-buttons">
+                        <button class="upi-button" onclick="openUPIApp('phonepe')">
+                            <i class="fas fa-mobile-alt"></i> PhonePe
+                        </button>
+                        <button class="upi-button" onclick="openUPIApp('gpay')">
+                            <i class="fas fa-mobile-alt"></i> Google Pay
+                        </button>
+                        <button class="upi-button" onclick="openUPIApp('paytm')">
+                            <i class="fas fa-mobile-alt"></i> Paytm
+                        </button>
+                        <button class="upi-button" onclick="openUPIApp('bhim')">
+                            <i class="fas fa-mobile-alt"></i> BHIM
+                        </button>
+                    </div>
+
+                    <p style="text-align: center; color: #666; margin: 15px 0;">
+                        <strong>UPI ID:</strong> khemkakshama64-1@oksbi
+                    </p>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep()">Payment Done →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Confirmation -->
+            <div class="step-content" id="step3">
+                <h2 class="step-title">📷 Upload Payment Screenshot</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Please upload a screenshot of your payment confirmation to complete your order.
+                </p>
+
+                <div class="upload-section">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Upload Payment Screenshot</h4>
+                    <p>Drag & drop your screenshot here or click to browse</p>
+                    <input type="file" id="paymentScreenshot" class="file-input" accept="image/*">
+                    <button class="upload-btn" onclick="document.getElementById('paymentScreenshot').click()">
+                        Choose File
+                    </button>
+                    <div id="fileName" style="margin-top: 10px; color: #666;"></div>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="completeOrder()">
+                        <i class="fab fa-whatsapp"></i> Send via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Order Summary -->
+        <div class="order-summary">
+            <h3 style="margin-bottom: 20px; color: var(--text-dark);">Order Summary</h3>
+            <div id="orderItems">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span id="shipping">₹100</span>
+            </div>
+            <div class="summary-row summary-total">
+                <span>Total:</span>
+                <span id="total">₹0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="checkout.js"></script>
+</body>
+</html>

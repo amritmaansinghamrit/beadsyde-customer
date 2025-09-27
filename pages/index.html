@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beadsyde - Order Your Infinity Essentials</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/customer.css">
+    <script src="../shared/analytics/visitor-tracking.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="../assets/images/beadsyde logo.jpg" alt="Beadsyde Logo">
+                </div>
+                <div class="brand-info">
+                    <h1 class="brand-name">Beadsyde</h1>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2 class="hero-title"><strong>Choose Your <span class="infinity-text">Infinity</span></strong></h2>
+            <p class="hero-subtitle">Premium Anti-Tarnish Stainless Steel • Waterproof with Love and Care</p>
+        </div>
+    </section>
+
+    <!-- Simple Category Tabs -->
+    <section class="products-section">
+        <div class="container">
+            <div class="category-tabs">
+                <button class="tab-button active" data-category="all">All Items</button>
+                <button class="tab-button" data-category="necklaces">∞ Infinity Necklace</button>
+                <button class="tab-button" data-category="bracelets">∞ Infinity Bracelet</button>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p><i class="fab fa-instagram"></i> Follow us: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="footer-link">@beadsyde</a> | <i class="fab fa-whatsapp"></i> Join our <a href="https://chat.whatsapp.com/BTUOnwDzoLgBfCnrjNcL6j" target="_blank" class="footer-link">WhatsApp Community</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../shared/utils/api.js"></script>
+    <script src="../assets/js/customer.js"></script>
+</body>
+</html>
