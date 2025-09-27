@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Beadsyde</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Beadsyde Debug Page</h1>
+    <div id="status"></div>
+
+    <div id="productsGrid" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;">
+        <p>Products will load here...</p>
+    </div>
+
+    <script>
+        const status = document.getElementById('status');
+
+        function log(message, type = 'success') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            status.appendChild(div);
+        }
+
+        // Test if script loads
+        log('✅ Debug script loaded successfully');
+
+        // Test product data
+        const products = [
+            {
+                id: 1,
+                name: 'Silver Infinity Necklace',
+                price: 499,
+                category: 'necklaces',
+                image: 'assets/images/silver necklace.png',
+                description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
+            },
+            {
+                id: 2,
+                name: 'Golden Infinity Necklace',
+                price: 499,
+                category: 'necklaces',
+                image: 'assets/images/infinity necklace gold.jpg',
+                description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
+            }
+        ];
+
+        log(`✅ Products loaded: ${products.length} items`);
+
+        // Test DOM manipulation
+        try {
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                log('✅ Products grid element found');
+
+                const html = products.map(product => `
+                    <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                        <h3>${product.name}</h3>
+                        <p>Price: ₹${product.price}</p>
+                        <img src="${product.image}" alt="${product.name}" style="width: 100px; height: 100px; object-fit: cover;" onerror="this.style.display='none'">
+                    </div>
+                `).join('');
+
+                productsGrid.innerHTML = html;
+                log('✅ Products rendered successfully');
+            } else {
+                log('❌ Products grid element not found', 'error');
+            }
+        } catch (error) {
+            log(`❌ Error rendering products: ${error.message}`, 'error');
+        }
+
+        // Test cart icon
+        setTimeout(() => {
+            const cartIcon = document.getElementById('cartIcon');
+            if (cartIcon) {
+                log('✅ Cart icon found');
+            } else {
+                log('❌ Cart icon not found', 'error');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
