@@ -264,6 +264,68 @@
             max-width: 350px;
         }
 
+        .payment-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .payment-divider::before,
+        .payment-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .payment-divider span {
+            padding: 0 15px;
+            color: var(--text-medium);
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .qr-section {
+            text-align: center;
+            background: #f8f9fa;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 280px;
+            width: 100%;
+        }
+
+        .qr-section h4 {
+            margin: 0 0 15px 0;
+            color: var(--text-dark);
+            font-size: 1.1em;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .qr-display {
+            min-width: 200px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        .qr-loading {
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
         .step-buttons {
             display: flex;
             justify-content: space-between;
@@ -574,6 +636,7 @@
                     <h4 style="text-align: center; color: var(--primary-blue); margin-bottom: 30px;">💰 Pay ₹<span id="paymentAmount">0</span></h4>
 
                     <div class="payment-container">
+                        <!-- Primary UPI Button -->
                         <button class="upi-pay-button" onclick="openDynamicUPI()">
                             <div class="upi-icon">📱</div>
                             <div class="upi-text">
@@ -582,6 +645,22 @@
                             </div>
                             <div class="upi-arrow">→</div>
                         </button>
+
+                        <!-- OR Divider -->
+                        <div class="payment-divider">
+                            <span>OR</span>
+                        </div>
+
+                        <!-- QR Code Section -->
+                        <div class="qr-section">
+                            <h4>Scan QR Code</h4>
+                            <div class="qr-container">
+                                <div id="qrcode" class="qr-display"></div>
+                            </div>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                                Scan with any UPI app
+                            </p>
+                        </div>
 
                         <div class="payment-info">
                             <p style="text-align: center; color: #666; margin: 20px 0;">

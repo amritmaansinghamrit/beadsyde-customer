@@ -18,6 +18,9 @@ class CheckoutFlow {
         // Display order summary
         this.displayOrderSummary();
 
+        // Generate UPI QR code
+        this.generateUPIQR();
+
         // Setup form listeners
         this.setupFormListeners();
 
@@ -88,6 +91,64 @@ class CheckoutFlow {
         this.orderData.subtotal = subtotal;
         this.orderData.shipping = shipping;
         this.orderData.total = total;
+
+        // Regenerate QR code with new total
+        if (this.orderData.total > 0) {
+            setTimeout(() => this.generateUPIQR(), 100);
+        }
+    }
+
+    generateUPIQR() {
+        const total = this.orderData.total || 0;
+        const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
+
+        // Show loading state
+        const qrContainer = document.getElementById('qrcode');
+        if (qrContainer) {
+            qrContainer.innerHTML = '<div class="qr-loading">Generating QR Code...</div>';
+
+            // Generate QR code if library is available
+            if (typeof QRCode !== 'undefined') {
+                // Clear container first
+                qrContainer.innerHTML = '';
+
+                QRCode.toCanvas(qrContainer, upiLink, {
+                    width: 180,
+                    height: 180,
+                    margin: 2,
+                    color: {
+                        dark: '#2E5BBA',
+                        light: '#FFFFFF'
+                    },
+                    errorCorrectionLevel: 'M'
+                }, (error) => {
+                    if (error) {
+                        console.error('QR generation failed:', error);
+                        qrContainer.innerHTML = `
+                            <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
+                                <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
+                                <div>QR Code</div>
+                                <a href="${upiLink}" style="color: var(--primary-blue); margin-top: 5px; font-size: 12px;">Click to Pay</a>
+                            </div>
+                        `;
+                    } else {
+                        console.log('✅ UPI QR code generated successfully');
+                    }
+                });
+            } else {
+                // Fallback if QRCode library not loaded
+                console.warn('QRCode library not loaded, showing fallback');
+                qrContainer.innerHTML = `
+                    <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
+                        <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <div>QR Code</div>
+                        <a href="${upiLink}" style="color: var(--primary-blue); margin-top: 5px; font-size: 12px;">Click to Pay</a>
+                    </div>
+                `;
+            }
+        }
+
+        this.upiLink = upiLink;
     }
 
 
