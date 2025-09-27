@@ -18,9 +18,6 @@ class CheckoutFlow {
         // Display order summary
         this.displayOrderSummary();
 
-        // Generate UPI QR code
-        this.generateUPIQR();
-
         // Setup form listeners
         this.setupFormListeners();
 
@@ -82,87 +79,83 @@ class CheckoutFlow {
         document.getElementById('total').textContent = `₹${total}`;
         document.getElementById('paymentAmount').textContent = total;
 
+        // Update confirmation amount if element exists
+        const confirmAmount = document.getElementById('confirmAmount');
+        if (confirmAmount) {
+            confirmAmount.textContent = total;
+        }
+
         this.orderData.subtotal = subtotal;
         this.orderData.shipping = shipping;
         this.orderData.total = total;
     }
 
-    generateUPIQR() {
-        const total = this.orderData.total || 0;
 
-        // UPI deep link format
+    openDynamicUPI() {
+        const total = this.orderData.total || 0;
         const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
 
-        // Generate QR code
-        const qrContainer = document.getElementById('qrcode');
-        if (qrContainer && typeof QRCode !== 'undefined') {
-            QRCode.toCanvas(qrContainer, upiLink, {
-                width: 200,
-                height: 200,
-                color: {
-                    dark: '#2E5BBA',
-                    light: '#FFFFFF'
-                }
-            }, (error) => {
-                if (error) {
-                    console.error('QR generation failed:', error);
-                    qrContainer.innerHTML = `<div style="width: 200px; height: 200px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px;">
-                        <div>
-                            <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i><br>
-                            QR Code<br>
-                            <a href="${upiLink}" style="color: var(--primary-blue);">Click to Pay</a>
-                        </div>
-                    </div>`;
-                } else {
-                    console.log('✅ UPI QR code generated');
-                }
-            });
-        } else {
-            // Fallback if QRCode library not loaded
-            qrContainer.innerHTML = `<div style="width: 200px; height: 200px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px;">
-                <div>
-                    <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i><br>
-                    QR Code<br>
-                    <a href="${upiLink}" style="color: var(--primary-blue);">Click to Pay</a>
-                </div>
-            </div>`;
-        }
+        // For mobile devices, try different UPI schemes in order of popularity
+        const upiApps = [
+            `phonepe://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
+            `tez://upi/pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
+            `paytmmp://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
+            `bhim://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
+            upiLink
+        ];
 
-        this.upiLink = upiLink;
+        // Try each UPI app in sequence
+        let appIndex = 0;
+        const tryNextApp = () => {
+            if (appIndex < upiApps.length) {
+                const appUrl = upiApps[appIndex];
+                console.log(`📱 Trying UPI app ${appIndex + 1}: ${appUrl.split('://')[0]}`);
+
+                // Create invisible link and try to open
+                const link = document.createElement('a');
+                link.href = appUrl;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                appIndex++;
+
+                // If not the last app, try next one after a short delay
+                if (appIndex < upiApps.length) {
+                    setTimeout(tryNextApp, 500);
+                }
+            }
+        };
+
+        // Start trying apps
+        tryNextApp();
+
+        // Show user feedback
+        this.showPaymentProgress();
+
+        console.log(`📱 Opening dynamic UPI with amount: ₹${total}`);
     }
 
-    openUPIApp(app) {
-        const total = this.orderData.total || 0;
-        let appUrl;
+    showPaymentProgress() {
+        const button = document.querySelector('.upi-pay-button');
+        if (button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = `
+                <div class="upi-icon">⏳</div>
+                <div class="upi-text">
+                    <h3>Opening UPI App...</h3>
+                    <p>Please complete payment and return here</p>
+                </div>
+            `;
+            button.disabled = true;
 
-        switch(app) {
-            case 'phonepe':
-                appUrl = `phonepe://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`;
-                break;
-            case 'gpay':
-                appUrl = `tez://upi/pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`;
-                break;
-            case 'paytm':
-                appUrl = `paytmmp://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`;
-                break;
-            case 'bhim':
-                appUrl = `bhim://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`;
-                break;
-            default:
-                appUrl = this.upiLink;
+            // Reset button after 5 seconds
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }, 5000);
         }
-
-        // Try to open the app
-        const link = document.createElement('a');
-        link.href = appUrl;
-        link.click();
-
-        // Fallback to UPI link after a delay
-        setTimeout(() => {
-            window.location.href = this.upiLink;
-        }, 1000);
-
-        console.log(`📱 Opening ${app} with amount: ₹${total}`);
     }
 
     setupFormListeners() {
@@ -203,15 +196,31 @@ class CheckoutFlow {
     setupFileUpload() {
         const fileInput = document.getElementById('paymentScreenshot');
         const fileName = document.getElementById('fileName');
+        const completeBtn = document.getElementById('completeOrderBtn');
 
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                fileName.textContent = `📎 ${this.files[0].name}`;
-                fileName.style.color = '#10B981';
-            } else {
-                fileName.textContent = '';
-            }
-        });
+        if (fileInput && fileName) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    fileName.innerHTML = `✅ ${file.name} <span style="color: var(--text-light); font-size: 0.9em;">(${(file.size / 1024 / 1024).toFixed(1)}MB)</span>`;
+                    fileName.style.color = 'var(--success-green)';
+
+                    // Enable complete order button
+                    if (completeBtn) {
+                        completeBtn.disabled = false;
+                        completeBtn.style.opacity = '1';
+                    }
+                } else {
+                    fileName.textContent = '';
+
+                    // Disable complete order button
+                    if (completeBtn) {
+                        completeBtn.disabled = true;
+                        completeBtn.style.opacity = '0.5';
+                    }
+                }
+            });
+        }
     }
 
     nextStep() {
@@ -380,8 +389,8 @@ function goBack() {
     window.location.href = 'index.html';
 }
 
-function openUPIApp(app) {
-    window.checkoutFlow.openUPIApp(app);
+function openDynamicUPI() {
+    window.checkoutFlow.openDynamicUPI();
 }
 
 function completeOrder() {
