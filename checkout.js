@@ -480,6 +480,35 @@ class CheckoutFlow {
         }, 1000);
 
         console.log('✅ Order completed:', this.orderId);
+
+        // Save order to test database (localStorage)
+        const orderData = {
+            orderId: this.orderId,
+            total: this.orderData.total,
+            subtotal: this.orderData.subtotal,
+            shipping: this.orderData.shipping,
+            items: this.cart,
+            customer: this.orderData.customer,
+            timestamp: Date.now(),
+            status: 'completed'
+        };
+
+        // Save to localStorage for admin dashboard
+        const testOrders = JSON.parse(localStorage.getItem('beadsyde_test_orders') || '[]');
+        testOrders.push(orderData);
+        localStorage.setItem('beadsyde_test_orders', JSON.stringify(testOrders));
+
+        // Track order completion for analytics
+        if (window.BeadsydeAnalytics) {
+            try {
+                window.analytics = window.analytics || new BeadsydeAnalytics();
+                window.analytics.trackPurchase(orderData);
+            } catch (e) {
+                console.log('Analytics tracking failed:', e);
+            }
+        }
+
+        console.log('💾 Order saved to test database:', this.orderId);
     }
 }
 

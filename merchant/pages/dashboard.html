@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beadsyde Admin - Simple Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #2E5BBA;
+            --pure-white: #FFFFFF;
+            --text-dark: #1a1a1a;
+            --text-medium: #4a4a4a;
+            --text-light: #888;
+            --border-light: #e1e1e1;
+            --success-green: #10B981;
+            --warning-orange: #f59e0b;
+            --error-red: #EF4444;
+            --neutral-beige: #F5F1E8;
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --border-radius-large: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--neutral-beige);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .header {
+            background: var(--pure-white);
+            padding: 12px;
+            box-shadow: var(--shadow-subtle);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary-blue);
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            color: var(--text-medium);
+            font-size: 1em;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .action-card {
+            background: var(--pure-white);
+            padding: 20px;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-subtle);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .action-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+        }
+
+        .action-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .action-description {
+            color: var(--text-medium);
+            font-size: 0.9em;
+        }
+
+        .stats-section {
+            background: var(--pure-white);
+            padding: 20px;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-subtle);
+            margin-bottom: 20px;
+        }
+
+        .stats-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8faff, #f0f4ff);
+            border-radius: var(--border-radius);
+            border: 1px solid #e1e8ff;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .stat-label {
+            color: var(--text-medium);
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+
+        .section {
+            display: none;
+            background: var(--pure-white);
+            padding: 20px;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-subtle);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .simple-button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simple-button:hover {
+            background: #1e4a9f;
+            transform: translateY(-1px);
+        }
+
+        .simple-button.secondary {
+            background: var(--pure-white);
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        .simple-button.secondary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .simple-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .simple-table th,
+        .simple-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .simple-table th {
+            background: var(--neutral-beige);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .simple-table td {
+            color: var(--text-medium);
+        }
+
+        .simple-form {
+            display: grid;
+            gap: 20px;
+            max-width: 500px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius);
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .back-button {
+            background: none;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #d1fae5; color: #065f46; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏪 Beadsyde Admin</h1>
+        <p class="subtitle">Simple Dashboard for Managing Your Store</p>
+    </div>
+
+    <div class="container">
+        <!-- Quick Actions -->
+        <div id="dashboard-view">
+            <div class="quick-actions">
+                <div class="action-card" onclick="showSection('products')">
+                    <div class="action-icon">📦</div>
+                    <div class="action-title">Manage Products</div>
+                    <div class="action-description">Add new jewelry, change prices, or remove items from your store</div>
+                </div>
+
+                <div class="action-card" onclick="showSection('orders')">
+                    <div class="action-icon">📋</div>
+                    <div class="action-title">Customer Orders</div>
+                    <div class="action-description">See who ordered what and update delivery status</div>
+                </div>
+
+                <div class="action-card" onclick="showSection('settings')">
+                    <div class="action-icon">⚙️</div>
+                    <div class="action-title">Store Settings</div>
+                    <div class="action-description">Change your store name, WhatsApp number, and shipping costs</div>
+                </div>
+            </div>
+
+            <!-- Simple Stats -->
+            <div class="stats-section">
+                <h2 class="stats-title">Quick Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalOrders">4</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRevenue">₹3,097</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProducts">6</div>
+                        <div class="stat-label">Products Listed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products-section" class="section">
+            <button class="back-button" onclick="showDashboard()">← Back to Dashboard</button>
+
+            <div class="section-header">
+                <h2 class="section-title">Manage Products</h2>
+                <button class="simple-button" onclick="showAddProduct()">
+                    <i class="fas fa-plus"></i>
+                    Add New Product
+                </button>
+            </div>
+            <p style="color: var(--text-medium); margin-bottom: 25px;">📝 Here are all your jewelry products. You can edit prices, change names, or remove items</p>
+
+            <table class="simple-table" id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Products will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add Product Form -->
+        <div id="add-product-section" class="section">
+            <button class="back-button" onclick="showSection('products')">← Back to Products</button>
+
+            <h2 class="section-title">Add New Product</h2>
+            <p style="color: var(--text-medium); margin-bottom: 25px;">💡 Fill in the details below to add a new jewelry item to your store</p>
+
+            <form class="simple-form" id="addProductForm">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="productName" required placeholder="e.g., Silver Infinity Necklace">
+                </div>
+
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="productPrice" required placeholder="499">
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="productCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="necklaces">Necklaces</option>
+                        <option value="bracelets">Bracelets</option>
+                        <option value="earrings">Earrings</option>
+                        <option value="rings">Rings</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="productDescription" placeholder="Brief description of the product..."></textarea>
+                </div>
+
+                <button type="submit" class="simple-button">
+                    <i class="fas fa-save"></i>
+                    Save Product
+                </button>
+            </form>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="section">
+            <button class="back-button" onclick="showDashboard()">← Back to Dashboard</button>
+
+            <h2 class="section-title">Customer Orders</h2>
+            <p style="color: var(--text-medium); margin-bottom: 25px;">📦 All customer orders appear here. Click "Update Status" to change delivery progress</p>
+
+            <table class="simple-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Orders will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="section">
+            <button class="back-button" onclick="showDashboard()">← Back to Dashboard</button>
+
+            <h2 class="section-title">Store Settings</h2>
+            <p style="color: var(--text-medium); margin-bottom: 25px;">⚙️ Update your store information and delivery settings</p>
+
+            <form class="simple-form" id="settingsForm">
+                <div class="form-group">
+                    <label>Store Name</label>
+                    <input type="text" id="storeName" value="Beadsyde">
+                </div>
+
+                <div class="form-group">
+                    <label>WhatsApp Number</label>
+                    <input type="tel" id="whatsappNumber" value="+91 81045 63011">
+                </div>
+
+                <div class="form-group">
+                    <label>Shipping Cost (₹)</label>
+                    <input type="number" id="shippingCost" value="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Free Shipping Above (₹)</label>
+                    <input type="number" id="freeShippingThreshold" value="999">
+                </div>
+
+                <button type="submit" class="simple-button">
+                    <i class="fas fa-save"></i>
+                    Save Settings
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple merchant dashboard functionality
+        let products = [
+            { id: 1, name: 'Silver Infinity Necklace', price: 499, category: 'necklaces', description: 'Beautiful silver infinity necklace' },
+            { id: 2, name: 'Golden Infinity Bracelet', price: 349, category: 'bracelets', description: 'Elegant golden infinity bracelet' },
+            { id: 3, name: 'Pearl Drop Earrings', price: 299, category: 'earrings', description: 'Classic pearl drop earrings' },
+            { id: 4, name: 'Diamond Ring', price: 1299, category: 'rings', description: 'Stunning diamond ring' },
+            { id: 5, name: 'Rose Gold Necklace', price: 599, category: 'necklaces', description: 'Elegant rose gold chain' },
+            { id: 6, name: 'Silver Bracelet Set', price: 249, category: 'bracelets', description: 'Set of 3 silver bracelets' }
+        ];
+
+        let orders = [
+            { id: 1, number: 'ORD-001', customer: 'Priya Sharma', total: 849, status: 'processing' },
+            { id: 2, number: 'ORD-002', customer: 'Amit Kumar', total: 299, status: 'shipped' },
+            { id: 3, number: 'ORD-003', customer: 'Sneha Patel', total: 649, status: 'delivered' },
+            { id: 4, number: 'ORD-004', customer: 'Rahul Gupta', total: 1299, status: 'pending' }
+        ];
+
+        function showDashboard() {
+            hideAllSections();
+            document.getElementById('dashboard-view').style.display = 'block';
+        }
+
+        function showSection(section) {
+            hideAllSections();
+            document.getElementById(section + '-section').classList.add('active');
+
+            if (section === 'products') {
+                loadProducts();
+            } else if (section === 'orders') {
+                loadOrders();
+            }
+        }
+
+        function hideAllSections() {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+        }
+
+        function showAddProduct() {
+            hideAllSections();
+            document.getElementById('add-product-section').classList.add('active');
+        }
+
+        function loadProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>${product.name}</td>
+                    <td>₹${product.price}</td>
+                    <td>${product.category}</td>
+                    <td>
+                        <button class="simple-button secondary" onclick="editProduct(${product.id})">Edit</button>
+                        <button class="simple-button secondary" onclick="deleteProduct(${product.id})" style="margin-left: 10px;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${order.number}</td>
+                    <td>${order.customer}</td>
+                    <td>₹${order.total}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                    <td>
+                        <button class="simple-button secondary" onclick="updateOrderStatus(${order.id})">Update Status</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                const newName = prompt(`📝 Change product name:\n(Current: ${product.name})`, product.name);
+                if (newName === null) return; // User cancelled
+
+                const newPrice = prompt(`💰 Change price in rupees:\n(Current: ₹${product.price})`, product.price);
+                if (newPrice === null) return; // User cancelled
+
+                if (newName.trim() && newPrice && !isNaN(newPrice)) {
+                    product.name = newName.trim();
+                    product.price = parseInt(newPrice);
+                    loadProducts();
+                    alert('✅ Product updated successfully!');
+                } else {
+                    alert('❌ Please enter valid name and price');
+                }
+            }
+        }
+
+        function deleteProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (confirm(`🗑️ Delete "${product.name}"?\n\nThis cannot be undone!`)) {
+                products = products.filter(p => p.id !== id);
+                loadProducts();
+                alert('✅ Product deleted successfully!');
+            }
+        }
+
+        function updateOrderStatus(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                const statusOptions = 'Choose new status:\n1. pending\n2. processing\n3. shipped\n4. delivered';
+                const newStatus = prompt(`📦 Update order ${order.number} status\nCustomer: ${order.customer}\n\n${statusOptions}`, order.status);
+
+                if (newStatus && ['pending', 'processing', 'shipped', 'delivered'].includes(newStatus.toLowerCase())) {
+                    order.status = newStatus.toLowerCase();
+                    loadOrders();
+                    alert('✅ Order status updated!');
+                } else if (newStatus !== null) {
+                    alert('❌ Please enter: pending, processing, shipped, or delivered');
+                }
+            }
+        }
+
+        // Form submissions
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('productName').value.trim();
+            const price = document.getElementById('productPrice').value;
+            const category = document.getElementById('productCategory').value;
+            const description = document.getElementById('productDescription').value.trim();
+
+            // Simple validation with helpful messages
+            if (!name) {
+                alert('❌ Please enter a product name');
+                document.getElementById('productName').focus();
+                return;
+            }
+
+            if (!price || isNaN(price) || price <= 0) {
+                alert('❌ Please enter a valid price (numbers only)');
+                document.getElementById('productPrice').focus();
+                return;
+            }
+
+            if (!category) {
+                alert('❌ Please select a category for your product');
+                document.getElementById('productCategory').focus();
+                return;
+            }
+
+            const newProduct = {
+                id: Date.now(), // More unique ID
+                name: name,
+                price: parseInt(price),
+                category: category,
+                description: description || 'No description provided'
+            };
+
+            products.push(newProduct);
+            alert('✅ New product added successfully!\n\n📦 Product: ' + name + '\n💰 Price: ₹' + price);
+            this.reset();
+            showSection('products');
+        });
+
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const storeName = document.getElementById('storeName').value.trim();
+            const whatsappNumber = document.getElementById('whatsappNumber').value.trim();
+
+            if (!storeName) {
+                alert('❌ Please enter your store name');
+                return;
+            }
+
+            if (!whatsappNumber) {
+                alert('❌ Please enter your WhatsApp number');
+                return;
+            }
+
+            alert('✅ Store settings saved successfully!\n\n🏪 Store: ' + storeName + '\n📱 WhatsApp: ' + whatsappNumber);
+        });
+
+        // Initialize dashboard
+        showDashboard();
+    </script>
+</body>
+</html>

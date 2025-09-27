@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beadsyde Admin - Order Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f5f6fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .admin-header {
+            background: #2E5BBA;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2E5BBA;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .orders-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #2E5BBA;
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .orders-list {
+            padding: 1.5rem;
+        }
+
+        .order-item {
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #2E5BBA;
+        }
+
+        .order-amount {
+            font-weight: 700;
+            color: #10B981;
+            font-size: 1.1rem;
+        }
+
+        .order-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .refresh-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #059669;
+        }
+
+        .analytics-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2E5BBA;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <h1>
+            <i class="fas fa-chart-bar"></i>
+            Beadsyde Admin Dashboard
+            <a href="index.html" class="back-link" style="margin-left: auto; font-size: 0.9rem;">
+                <i class="fas fa-arrow-left"></i> Back to Store
+            </a>
+        </h1>
+    </header>
+
+    <div class="container">
+        <div class="analytics-info">
+            <h3><i class="fas fa-info-circle"></i> Analytics Status</h3>
+            <p>This dashboard shows test order data from localStorage. In production, this would connect to your analytics backend to show real visitor data, conversion rates, and order analytics.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Test Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRevenue">₹0</div>
+                <div class="stat-label">Test Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgOrderValue">₹0</div>
+                <div class="stat-label">Avg Order Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sessionCount">-</div>
+                <div class="stat-label">Analytics Sessions</div>
+            </div>
+        </div>
+
+        <div class="orders-section">
+            <div class="section-header">
+                <h2><i class="fas fa-shopping-bag"></i> Recent Test Orders</h2>
+                <button class="refresh-btn" onclick="loadOrders()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <div class="orders-list" id="ordersList">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AdminDashboard {
+            constructor() {
+                this.orders = [];
+                this.init();
+            }
+
+            init() {
+                this.loadOrders();
+                this.updateStats();
+
+                // Auto-refresh every 30 seconds
+                setInterval(() => {
+                    this.loadOrders();
+                    this.updateStats();
+                }, 30000);
+            }
+
+            loadOrders() {
+                // Load from localStorage (test orders)
+                const testOrders = JSON.parse(localStorage.getItem('beadsyde_test_orders') || '[]');
+
+                // Also check for any analytics data
+                const analyticsData = JSON.parse(localStorage.getItem('beadsyde_analytics') || '[]');
+
+                this.orders = testOrders;
+                this.displayOrders();
+
+                console.log('📊 Loaded test orders:', testOrders.length);
+                console.log('📈 Analytics events:', analyticsData.length);
+            }
+
+            displayOrders() {
+                const ordersList = document.getElementById('ordersList');
+
+                if (this.orders.length === 0) {
+                    ordersList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>No Test Orders Yet</h3>
+                            <p>Complete a test order on the customer site to see it here.</p>
+                            <p style="margin-top: 1rem;">
+                                <a href="index.html" style="color: #2E5BBA; text-decoration: none;">
+                                    <i class="fas fa-arrow-right"></i> Go Place a Test Order
+                                </a>
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const html = this.orders.map(order => `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <span class="order-id">${order.orderId}</span>
+                            <span class="order-amount">₹${order.total}</span>
+                        </div>
+                        <div class="order-details">
+                            <strong>${order.customer?.name || 'Anonymous'}</strong> •
+                            ${order.items?.length || 0} items •
+                            ${new Date(order.timestamp).toLocaleString()}
+                            <br>
+                            <small>
+                                Items: ${order.items?.map(item => `${item.name} (${item.quantity})`).join(', ') || 'N/A'}
+                            </small>
+                        </div>
+                    </div>
+                `).join('');
+
+                ordersList.innerHTML = html;
+            }
+
+            updateStats() {
+                const totalOrders = this.orders.length;
+                const totalRevenue = this.orders.reduce((sum, order) => sum + (order.total || 0), 0);
+                const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
+                document.getElementById('avgOrderValue').textContent = `₹${avgOrderValue}`;
+
+                // Check for analytics sessions
+                const analyticsData = JSON.parse(localStorage.getItem('beadsyde_analytics') || '[]');
+                const sessionCount = new Set(analyticsData.map(event => event.sessionId)).size;
+                document.getElementById('sessionCount').textContent = sessionCount || '-';
+            }
+        }
+
+        // Global function for refresh button
+        function loadOrders() {
+            window.dashboard.loadOrders();
+            window.dashboard.updateStats();
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new AdminDashboard();
+        });
+
+        // Save test order when order is completed (called from checkout)
+        window.saveTestOrder = function(orderData) {
+            const testOrders = JSON.parse(localStorage.getItem('beadsyde_test_orders') || '[]');
+            testOrders.push({
+                ...orderData,
+                timestamp: Date.now()
+            });
+            localStorage.setItem('beadsyde_test_orders', JSON.stringify(testOrders));
+            console.log('💾 Test order saved:', orderData.orderId);
+        };
+    </script>
+</body>
+</html>
