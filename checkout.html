@@ -655,11 +655,16 @@
                         <div class="qr-section">
                             <h4>Scan QR Code</h4>
                             <div class="qr-container">
-                                <div id="qrcode" class="qr-display"></div>
+                                <div id="qrcode" class="qr-display">
+                                    <div class="qr-loading">Loading QR Code...</div>
+                                </div>
                             </div>
                             <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
                                 Scan with any UPI app
                             </p>
+                            <button onclick="window.checkoutFlow && window.checkoutFlow.generateUPIQR()" style="background: var(--primary-blue); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.8em; margin-top: 10px; cursor: pointer;">
+                                🔄 Regenerate QR
+                            </button>
                         </div>
 
                         <div class="payment-info">

@@ -102,13 +102,22 @@ class CheckoutFlow {
         const total = this.orderData.total || 0;
         const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
 
+        console.log(`🔄 Generating QR code for amount: ₹${total}`);
+
         // Show loading state
         const qrContainer = document.getElementById('qrcode');
-        if (qrContainer) {
-            qrContainer.innerHTML = '<div class="qr-loading">Generating QR Code...</div>';
+        if (!qrContainer) {
+            console.error('❌ QR container not found!');
+            return;
+        }
 
-            // Generate QR code if library is available
+        qrContainer.innerHTML = '<div class="qr-loading">Generating QR Code...</div>';
+
+        // Wait for QRCode library to be available
+        const generateQR = () => {
             if (typeof QRCode !== 'undefined') {
+                console.log('✅ QRCode library found, generating QR...');
+
                 // Clear container first
                 qrContainer.innerHTML = '';
 
@@ -123,11 +132,11 @@ class CheckoutFlow {
                     errorCorrectionLevel: 'M'
                 }, (error) => {
                     if (error) {
-                        console.error('QR generation failed:', error);
+                        console.error('❌ QR generation failed:', error);
                         qrContainer.innerHTML = `
                             <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
                                 <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
-                                <div>QR Code</div>
+                                <div>QR Code Failed</div>
                                 <a href="${upiLink}" style="color: var(--primary-blue); margin-top: 5px; font-size: 12px;">Click to Pay</a>
                             </div>
                         `;
@@ -136,8 +145,7 @@ class CheckoutFlow {
                     }
                 });
             } else {
-                // Fallback if QRCode library not loaded
-                console.warn('QRCode library not loaded, showing fallback');
+                console.warn('⚠️ QRCode library not loaded, showing fallback');
                 qrContainer.innerHTML = `
                     <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
                         <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
@@ -146,6 +154,15 @@ class CheckoutFlow {
                     </div>
                 `;
             }
+        };
+
+        // Try generating immediately, then retry if needed
+        generateQR();
+
+        // If library wasn't ready, retry after short delay
+        if (typeof QRCode === 'undefined') {
+            console.log('🔄 QRCode library not ready, retrying in 1 second...');
+            setTimeout(generateQR, 1000);
         }
 
         this.upiLink = upiLink;
@@ -329,6 +346,13 @@ class CheckoutFlow {
                 content.classList.add('active');
             }
         });
+
+        // Generate QR code when entering payment step (step 2)
+        if (this.currentStep === 2) {
+            setTimeout(() => {
+                this.generateUPIQR();
+            }, 500);
+        }
 
         console.log(`📍 Step ${this.currentStep} activated`);
     }
