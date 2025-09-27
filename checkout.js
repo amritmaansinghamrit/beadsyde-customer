@@ -118,42 +118,75 @@ class CheckoutFlow {
             if (typeof QRCode !== 'undefined') {
                 console.log('✅ QRCode library found, generating QR...');
 
-                // Clear container first
-                qrContainer.innerHTML = '';
+                try {
+                    // Create canvas element manually
+                    const canvas = document.createElement('canvas');
+                    canvas.style.width = '180px';
+                    canvas.style.height = '180px';
 
-                QRCode.toCanvas(qrContainer, upiLink, {
-                    width: 180,
-                    height: 180,
-                    margin: 2,
-                    color: {
-                        dark: '#2E5BBA',
-                        light: '#FFFFFF'
-                    },
-                    errorCorrectionLevel: 'M'
-                }, (error) => {
-                    if (error) {
-                        console.error('❌ QR generation failed:', error);
-                        qrContainer.innerHTML = `
-                            <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
-                                <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
-                                <div>QR Code Failed</div>
-                                <a href="${upiLink}" style="color: var(--primary-blue); margin-top: 5px; font-size: 12px;">Click to Pay</a>
-                            </div>
-                        `;
-                    } else {
-                        console.log('✅ UPI QR code generated successfully');
-                    }
-                });
+                    // Clear container and add canvas
+                    qrContainer.innerHTML = '';
+                    qrContainer.appendChild(canvas);
+
+                    // Generate QR to canvas
+                    QRCode.toCanvas(canvas, upiLink, {
+                        width: 180,
+                        height: 180,
+                        margin: 2,
+                        color: {
+                            dark: '#2E5BBA',
+                            light: '#FFFFFF'
+                        },
+                        errorCorrectionLevel: 'M'
+                    }, (error) => {
+                        if (error) {
+                            console.error('❌ QR canvas generation failed:', error);
+                            // Try alternative method with data URL
+                            QRCode.toDataURL(upiLink, {
+                                width: 180,
+                                height: 180,
+                                margin: 2,
+                                color: {
+                                    dark: '#2E5BBA',
+                                    light: '#FFFFFF'
+                                },
+                                errorCorrectionLevel: 'M'
+                            }, (err, url) => {
+                                if (err) {
+                                    console.error('❌ QR data URL generation also failed:', err);
+                                    showQRFallback();
+                                } else {
+                                    console.log('✅ QR generated as data URL');
+                                    qrContainer.innerHTML = `<img src="${url}" style="width: 180px; height: 180px;" alt="QR Code">`;
+                                }
+                            });
+                        } else {
+                            console.log('✅ UPI QR code generated successfully as canvas');
+                        }
+                    });
+                } catch (canvasError) {
+                    console.error('❌ Canvas creation failed:', canvasError);
+                    showQRFallback();
+                }
             } else {
                 console.warn('⚠️ QRCode library not loaded, showing fallback');
-                qrContainer.innerHTML = `
-                    <div style="width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;">
-                        <i class="fas fa-qrcode" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
-                        <div>QR Code</div>
-                        <a href="${upiLink}" style="color: var(--primary-blue); margin-top: 5px; font-size: 12px;">Click to Pay</a>
-                    </div>
-                `;
+                showQRFallback();
             }
+        };
+
+        const showQRFallback = () => {
+            // Try using an online QR code service as backup
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiLink)}&color=2E5BBA&bgcolor=FFFFFF`;
+
+            console.log('🔄 Trying online QR service as fallback...');
+
+            qrContainer.innerHTML = `
+                <img src="${qrApiUrl}"
+                     style="width: 180px; height: 180px; border: 1px solid #ddd;"
+                     alt="QR Code"
+                     onload="console.log('✅ Online QR code loaded successfully')"
+                     onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\"width: 180px; height: 180px; background: #f0f0f0; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; font-size: 14px; flex-direction: column;\\"><i class=\\"fas fa-qrcode\\" style=\\"font-size: 2em; margin-bottom: 10px; opacity: 0.5;\\"></i><div>QR Code</div><a href=\\"${upiLink}\\" style=\\"color: var(--primary-blue); margin-top: 5px; font-size: 12px;\\">Click to Pay</a></div>'; console.error('❌ Online QR service also failed');">
+            `;
         };
 
         // Try generating immediately, then retry if needed
