@@ -102,7 +102,7 @@ class CheckoutFlow {
         const total = this.orderData.total || 0;
         const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
 
-        console.log(`🔄 Generating QR code for amount: ₹${total}`);
+        console.log(`🔄 Generating QR code for amount: ₹${total} with QRious library`);
 
         // Show loading state
         const qrContainer = document.getElementById('qrcode');
@@ -113,72 +113,45 @@ class CheckoutFlow {
 
         qrContainer.innerHTML = '<div class="qr-loading">Generating QR Code...</div>';
 
-        // Wait for QRCode library to be available
+        // Wait for QRious library to be available
         const generateQR = () => {
-            if (typeof QRCode !== 'undefined') {
-                console.log('✅ QRCode library found, generating QR...');
+            if (typeof QRious !== 'undefined') {
+                console.log('✅ QRious library found, generating QR...');
 
                 try {
-                    // Create canvas element manually
+                    // Create canvas element
                     const canvas = document.createElement('canvas');
-                    canvas.style.width = '180px';
-                    canvas.style.height = '180px';
+
+                    // Create QRious instance
+                    const qr = new QRious({
+                        element: canvas,
+                        value: upiLink,
+                        size: 180,
+                        foreground: '#2E5BBA',
+                        background: '#FFFFFF',
+                        level: 'M'
+                    });
 
                     // Clear container and add canvas
                     qrContainer.innerHTML = '';
                     qrContainer.appendChild(canvas);
 
-                    // Generate QR to canvas
-                    QRCode.toCanvas(canvas, upiLink, {
-                        width: 180,
-                        height: 180,
-                        margin: 2,
-                        color: {
-                            dark: '#2E5BBA',
-                            light: '#FFFFFF'
-                        },
-                        errorCorrectionLevel: 'M'
-                    }, (error) => {
-                        if (error) {
-                            console.error('❌ QR canvas generation failed:', error);
-                            // Try alternative method with data URL
-                            QRCode.toDataURL(upiLink, {
-                                width: 180,
-                                height: 180,
-                                margin: 2,
-                                color: {
-                                    dark: '#2E5BBA',
-                                    light: '#FFFFFF'
-                                },
-                                errorCorrectionLevel: 'M'
-                            }, (err, url) => {
-                                if (err) {
-                                    console.error('❌ QR data URL generation also failed:', err);
-                                    showQRFallback();
-                                } else {
-                                    console.log('✅ QR generated as data URL');
-                                    qrContainer.innerHTML = `<img src="${url}" style="width: 180px; height: 180px;" alt="QR Code">`;
-                                }
-                            });
-                        } else {
-                            console.log('✅ UPI QR code generated successfully as canvas');
-                        }
-                    });
-                } catch (canvasError) {
-                    console.error('❌ Canvas creation failed:', canvasError);
-                    showQRFallback();
+                    console.log('✅ QR code generated successfully with QRious');
+                } catch (qriousError) {
+                    console.error('❌ QRious generation failed:', qriousError);
+                    showOnlineQR();
                 }
             } else {
-                console.warn('⚠️ QRCode library not loaded, showing fallback');
-                showQRFallback();
+                console.warn('⚠️ QRious library not loaded, trying online service...');
+                showOnlineQR();
             }
         };
 
-        const showQRFallback = () => {
-            // Try using an online QR code service as backup
+        const showOnlineQR = () => {
+            // Use online QR service as backup
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiLink)}&color=2E5BBA&bgcolor=FFFFFF`;
 
-            console.log('🔄 Trying online QR service as fallback...');
+            console.log('🔄 Using online QR service...');
 
             qrContainer.innerHTML = `
                 <img src="${qrApiUrl}"
@@ -189,12 +162,12 @@ class CheckoutFlow {
             `;
         };
 
-        // Try generating immediately, then retry if needed
+        // Try generating immediately
         generateQR();
 
         // If library wasn't ready, retry after short delay
-        if (typeof QRCode === 'undefined') {
-            console.log('🔄 QRCode library not ready, retrying in 1 second...');
+        if (typeof QRious === 'undefined') {
+            console.log('🔄 QRious library not ready, retrying in 1 second...');
             setTimeout(generateQR, 1000);
         }
 
