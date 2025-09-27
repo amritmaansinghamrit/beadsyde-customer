@@ -13,7 +13,7 @@ class BeadsydeCustomer {
                 name: 'Silver Infinity Necklace',
                 price: 499,
                 category: 'necklaces',
-                image: '../assets/images/silver necklace.png',
+                image: 'assets/images/silver necklace.png',
                 description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
             },
             {
@@ -21,7 +21,7 @@ class BeadsydeCustomer {
                 name: 'Golden Infinity Necklace',
                 price: 499,
                 category: 'necklaces',
-                image: '../assets/images/infinity necklace gold.jpg',
+                image: 'assets/images/infinity necklace gold.jpg',
                 description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
             },
             {
@@ -29,7 +29,7 @@ class BeadsydeCustomer {
                 name: 'Silver Infinity Bracelet',
                 price: 349,
                 category: 'bracelets',
-                image: '../assets/images/infinity bracelet silver.jpg',
+                image: 'assets/images/infinity bracelet silver.jpg',
                 description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
             },
             {
@@ -37,7 +37,7 @@ class BeadsydeCustomer {
                 name: 'Golden Infinity Bracelet',
                 price: 349,
                 category: 'bracelets',
-                image: '../assets/images/infinity bracelet gold.jpg',
+                image: 'assets/images/infinity bracelet gold.jpg',
                 description: 'Premium Anti-Tarnish Stainless Steel • Waterproof'
             }
         ];
