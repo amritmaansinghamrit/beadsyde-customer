@@ -78,7 +78,7 @@
     </script>
     <script src="assets/js/customer.js"></script>
     <script>
-        // Additional debug after script loads
+        // Emergency fallback - manually add products if main script fails
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🔍 DOM Content Loaded - checking elements...');
 
@@ -89,9 +89,38 @@
             console.log('Cart Icon:', cartIcon);
             console.log('Beadsyde Customer:', window.beadsydeCustomer);
 
-            if (!window.beadsydeCustomer) {
-                console.error('❌ BeadsydeCustomer not initialized!');
-            }
+            // If the main script didn't work, add products manually
+            setTimeout(() => {
+                if (productsGrid && productsGrid.innerHTML.trim() === '') {
+                    console.log('🔧 Main script failed, adding products manually...');
+
+                    const products = [
+                        { id: 1, name: 'Silver Infinity Necklace', price: 499, image: 'assets/images/silver necklace.png', description: 'Premium Anti-Tarnish Stainless Steel • Waterproof' },
+                        { id: 2, name: 'Golden Infinity Necklace', price: 499, image: 'assets/images/infinity necklace gold.jpg', description: 'Premium Anti-Tarnish Stainless Steel • Waterproof' },
+                        { id: 3, name: 'Silver Infinity Bracelet', price: 349, image: 'assets/images/infinity bracelet silver.jpg', description: 'Premium Anti-Tarnish Stainless Steel • Waterproof' },
+                        { id: 4, name: 'Golden Infinity Bracelet', price: 349, image: 'assets/images/infinity bracelet gold.jpg', description: 'Premium Anti-Tarnish Stainless Steel • Waterproof' }
+                    ];
+
+                    const html = products.map(product => `
+                        <div class="product-card" style="background: white; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <div class="product-image" style="width: 100%; height: 200px; background: #F5F1E8; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.innerHTML='📿'">
+                            </div>
+                            <div class="product-info" style="padding: 15px;">
+                                <h3 style="font-size: 1.2em; margin-bottom: 8px; color: #1a1a1a; font-weight: 600;">${product.name}</h3>
+                                <div style="font-size: 1.6em; color: #2E5BBA; font-weight: 700; margin-bottom: 12px;">₹${product.price}</div>
+                                <p style="color: #4a4a4a; margin-bottom: 15px; font-size: 0.9em;">${product.description}</p>
+                                <button onclick="alert('Add to cart functionality - please refresh page!')" style="background: #2E5BBA; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    productsGrid.innerHTML = html;
+                    console.log('✅ Products added manually');
+                }
+            }, 2000);
         });
     </script>
 </body>
