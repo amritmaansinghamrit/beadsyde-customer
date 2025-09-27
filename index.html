@@ -61,6 +61,38 @@
     </footer>
 
     <!-- Scripts -->
+    <script>
+        console.log('🚀 Starting Beadsyde Customer Site...');
+
+        // Add error handling
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('JavaScript Error:', {
+                message: msg,
+                source: url,
+                line: lineNo,
+                column: columnNo,
+                error: error
+            });
+            return false;
+        };
+    </script>
     <script src="assets/js/customer.js"></script>
+    <script>
+        // Additional debug after script loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 DOM Content Loaded - checking elements...');
+
+            const productsGrid = document.getElementById('productsGrid');
+            const cartIcon = document.getElementById('cartIcon');
+
+            console.log('Products Grid:', productsGrid);
+            console.log('Cart Icon:', cartIcon);
+            console.log('Beadsyde Customer:', window.beadsydeCustomer);
+
+            if (!window.beadsydeCustomer) {
+                console.error('❌ BeadsydeCustomer not initialized!');
+            }
+        });
+    </script>
 </body>
 </html>
