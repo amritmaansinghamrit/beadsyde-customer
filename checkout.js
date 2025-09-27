@@ -100,9 +100,13 @@ class CheckoutFlow {
 
     generateUPIQR() {
         const total = this.orderData.total || 0;
-        const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
 
-        console.log(`🔄 Generating QR code for amount: ₹${total} with QRious library`);
+        // Create detailed transaction note
+        const itemCount = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const transactionNote = `Beadsyde Order ${this.orderId} - ${itemCount} Infinity Jewelry Items`;
+        const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+
+        console.log(`🔄 Generating QR code for amount: ₹${total} with note: "${transactionNote}"`);
 
         // Show loading state
         const qrContainer = document.getElementById('qrcode');
@@ -177,14 +181,19 @@ class CheckoutFlow {
 
     openDynamicUPI() {
         const total = this.orderData.total || 0;
-        const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=Beadsyde Order ${this.orderId}`;
+
+        // Create detailed transaction note
+        const itemCount = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const transactionNote = `Beadsyde Order ${this.orderId} - ${itemCount} Infinity Jewelry Items`;
+        const encodedNote = encodeURIComponent(transactionNote);
+        const upiLink = `upi://pay?pa=${this.upiId}&am=${total}&cu=INR&tn=${encodedNote}`;
 
         // For mobile devices, try different UPI schemes in order of popularity
         const upiApps = [
-            `phonepe://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
-            `tez://upi/pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
-            `paytmmp://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
-            `bhim://pay?pa=${this.upiId}&am=${total}&tn=Beadsyde Order ${this.orderId}`,
+            `phonepe://pay?pa=${this.upiId}&am=${total}&tn=${encodedNote}`,
+            `tez://upi/pay?pa=${this.upiId}&am=${total}&tn=${encodedNote}`,
+            `paytmmp://pay?pa=${this.upiId}&am=${total}&tn=${encodedNote}`,
+            `bhim://pay?pa=${this.upiId}&am=${total}&tn=${encodedNote}`,
             upiLink
         ];
 
@@ -448,9 +457,16 @@ class CheckoutFlow {
         }
 
         message += `\\n\\n🚚 Delivering Pan India in 4-6 working days\\n\\n`;
-        message += `💳 Pay to: ${this.upiId} (Beadsyde)\\n`;
+
+        // Add transaction reference
+        const itemCount = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const transactionNote = `Beadsyde Order ${this.orderId} - ${itemCount} Infinity Jewelry Items`;
+
+        message += `💳 Payment Details:\\n`;
+        message += `UPI ID: ${this.upiId} (Beadsyde)\\n`;
         message += `Amount: Rs.${this.orderData.total}\\n`;
-        message += `Share payment screenshot to confirm your order!`;
+        message += `Transaction Note: "${transactionNote}"\\n\\n`;
+        message += `📱 Share payment screenshot to confirm your order!`;
 
         // Open WhatsApp
         const whatsappUrl = `https://wa.me/918104563011?text=${encodeURIComponent(message)}`;
